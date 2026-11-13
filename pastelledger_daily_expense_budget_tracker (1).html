@@ -1,0 +1,2172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PastelLedger">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#FAF8F5">
+    <link id="appleTouchIconLink" rel="apple-touch-icon" sizes="180x180" href="">
+    <link id="webManifestLink" rel="manifest" href="">
+    <title>PastelLedger — Daily Expense &amp; Monthly Budget Tracker</title>
+    <style>
+        :root {
+            --bg-app: #FAF8F5;
+            --bg-surface: #FFFFFF;
+            --text-primary: #1F2421;
+            --text-secondary: #5C635F;
+            --text-muted: #848C88;
+            --border-subtle: #E8E4DD;
+            --danger: #DC2626;
+            --danger-bg: #FEF2F2;
+            --danger-border: #FECACA;
+            --accent-dark: #252A27;
+            --shadow-card: 0 4px 14px rgba(31, 36, 33, 0.04);
+            --shadow-card-hover: 0 10px 24px rgba(31, 36, 33, 0.08);
+            --shadow-modal: 0 24px 48px rgba(17, 24, 39, 0.18);
+            --radius-xl: 24px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-app);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.45;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        button, input, select {
+            font-family: inherit;
+        }
+
+        /* Header & Safe Area */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background: rgba(250, 248, 245, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+        }
+
+        .header-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #FCE7F3 0%, #E0E7FF 50%, #DCFCE7 100%);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        .brand-title {
+            font-size: 1.18rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        .brand-subtitle {
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .month-switcher {
+            display: inline-flex;
+            align-items: center;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .icon-btn {
+            min-width: 38px;
+            min-height: 38px;
+            border: none;
+            background: transparent;
+            border-radius: 11px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+        }
+
+        .icon-btn:hover {
+            background: #F3F0EA;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.96);
+        }
+
+        .month-label {
+            padding: 0 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            min-width: 118px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .pill-btn {
+            min-height: 44px;
+            padding: 0 14px;
+            border-radius: 14px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            transition: background-color 0.15s ease, transform 0.1s ease;
+        }
+
+        .pill-btn:hover {
+            background: #F4F1EB;
+        }
+
+        .pill-btn:active {
+            transform: scale(0.97);
+        }
+
+        .pill-btn.primary {
+            background: var(--accent-dark);
+            color: #FFFFFF;
+            border-color: var(--accent-dark);
+        }
+
+        .pill-btn.primary:hover {
+            background: #141715;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 18px 16px calc(36px + env(safe-area-inset-bottom));
+        }
+
+        /* Storage Warning Banner (only shown if Safari Private Mode blocks localStorage) */
+        .storage-warning {
+            display: none;
+            background: #FEF3C7;
+            border: 1px solid #FCD34D;
+            color: #92400E;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 0.82rem;
+            margin-bottom: 14px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .storage-warning.visible {
+            display: flex;
+        }
+
+        /* Summary Strip */
+        .summary-bar {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 16px 20px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .summary-stats {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 24px;
+        }
+
+        .stat-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.74rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-top: 2px;
+        }
+
+        .stat-value.over {
+            color: var(--danger);
+        }
+
+        .summary-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .priority-badge {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            background: #F4F1EB;
+            padding: 6px 11px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* Category Tabs Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        @media (min-width: 560px) {
+            .category-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 16px;
+            }
+        }
+
+        @media (min-width: 900px) {
+            .category-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1140px) {
+            .category-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        .cat-card {
+            appearance: none;
+            width: 100%;
+            text-align: left;
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            border-width: 1.5px;
+            border-style: solid;
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 196px;
+            position: relative;
+            transition: transform 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .cat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        .cat-card:active {
+            transform: scale(0.985);
+        }
+
+        .cat-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .cat-icon-wrap {
+            width: 46px;
+            height: 46px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.45rem;
+            flex-shrink: 0;
+        }
+
+        .cat-badges {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .usage-pill {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.72);
+            color: var(--text-secondary);
+        }
+
+        .over-limit-pill {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: var(--danger);
+            color: #FFFFFF;
+            letter-spacing: 0.02em;
+        }
+
+        .cat-name {
+            font-size: 1.12rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0 0 12px;
+            line-height: 1.25;
+        }
+
+        .cat-amounts {
+            margin-top: auto;
+        }
+
+        .cat-spent {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            line-height: 1.15;
+        }
+
+        .cat-spent.over-limit {
+            color: var(--danger);
+        }
+
+        .cat-limit-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 7px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: rgba(31, 36, 33, 0.75);
+            transition: width 0.25s ease;
+        }
+
+        .progress-fill.over-limit {
+            background: var(--danger);
+        }
+
+        /* Add New Category Card */
+        .add-cat-card {
+            appearance: none;
+            width: 100%;
+            min-height: 196px;
+            border-radius: var(--radius-xl);
+            border: 2px dashed #CFC9BE;
+            background: rgba(255, 255, 255, 0.65);
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .add-cat-card:hover {
+            background: #FFFFFF;
+            border-color: #9A9386;
+            transform: translateY(-2px);
+        }
+
+        .add-cat-plus {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: #EFECE6;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .add-cat-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .add-cat-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            max-width: 210px;
+        }
+
+        /* Modals */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: rgba(23, 27, 25, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0;
+        }
+
+        @media (min-width: 640px) {
+            .modal-backdrop {
+                align-items: center;
+                padding: 20px;
+            }
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal-panel {
+            background: var(--bg-surface);
+            width: 100%;
+            max-width: 560px;
+            max-height: 92vh;
+            border-radius: 26px 26px 0 0;
+            box-shadow: var(--shadow-modal);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.2s ease-out;
+        }
+
+        @media (min-width: 640px) {
+            .modal-panel {
+                border-radius: 26px;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .modal-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .modal-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin: 2px 0 0;
+        }
+
+        .modal-body {
+            padding: 18px 20px calc(22px + env(safe-area-inset-bottom));
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .text-input, .select-input {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 13px;
+            border-radius: 13px;
+            border: 1.5px solid var(--border-subtle);
+            background: #FAF9F6;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .text-input:focus, .select-input:focus {
+            border-color: var(--accent-dark);
+            background: #FFFFFF;
+        }
+
+        /* Color & Emoji Pickers */
+        .swatch-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .swatch-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.12s ease;
+        }
+
+        .swatch-btn.selected {
+            border-color: var(--accent-dark);
+            transform: scale(1.12);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+
+        .emoji-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .emoji-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-subtle);
+            background: #FAF9F6;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .emoji-btn.selected {
+            border-color: var(--accent-dark);
+            background: #EFECE6;
+            transform: scale(1.06);
+        }
+
+        /* Category Detail Summary Card */
+        .detail-budget-box {
+            border-radius: 18px;
+            padding: 15px 16px;
+            margin-bottom: 16px;
+            border: 1.5px solid var(--border-subtle);
+        }
+
+        .detail-budget-top {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .detail-spent {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .detail-spent.over-limit {
+            color: var(--danger);
+        }
+
+        .detail-limit {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .add-expense-card {
+            background: #FAF9F6;
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 18px;
+        }
+
+        .section-heading {
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+            margin: 0 0 10px;
+        }
+
+        /* Transaction Groups by Date */
+        .date-group {
+            margin-bottom: 14px;
+        }
+
+        .date-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            padding: 4px 2px 6px;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 6px;
+        }
+
+        .tx-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 13px;
+            background: #FAF9F6;
+            margin-bottom: 6px;
+        }
+
+        .tx-note {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tx-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .tx-amount {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .del-tx-btn {
+            min-width: 34px;
+            min-height: 34px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .del-tx-btn:hover {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: var(--danger-border);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 28px 16px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background: #FAF9F6;
+            border-radius: 16px;
+            border: 1px dashed var(--border-subtle);
+        }
+
+        /* Settings List */
+        .settings-cat-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 15px;
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 8px;
+        }
+
+        .settings-cat-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .settings-cat-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .limit-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .limit-input {
+            width: 104px;
+            min-height: 40px;
+            padding: 6px 10px;
+            border-radius: 11px;
+            border: 1.5px solid var(--border-subtle);
+            background: #FFFFFF;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .settings-divider {
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 18px 0;
+        }
+
+        .backup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .ios-guide-card {
+            background: linear-gradient(135deg, #FCE7F3 0%, #E0E7FF 52%, #DCFCE7 100%);
+            border: 1px solid rgba(31, 36, 33, 0.08);
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+
+        .ios-guide-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0 0 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ios-guide-steps {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .ios-guide-steps li {
+            margin-bottom: 3px;
+        }
+
+        /* Non-blocking Toast */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: calc(22px + env(safe-area-inset-bottom));
+            transform: translateX(-50%) translateY(20px);
+            background: var(--accent-dark);
+            color: #FFFFFF;
+            padding: 11px 18px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 80;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            white-space: nowrap;
+            max-width: 92vw;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Custom Confirmation Modal */
+        .confirm-box {
+            background: var(--bg-surface);
+            width: 100%;
+            max-width: 380px;
+            border-radius: 24px;
+            padding: 22px;
+            margin: auto 16px;
+            box-shadow: var(--shadow-modal);
+            text-align: center;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top App Header -->
+    <header class="app-header">
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-logo" aria-hidden="true">📒</div>
+                <div>
+                    <h1 class="brand-title">PastelLedger</h1>
+                    <p class="brand-subtitle">Offline Daily Expense &amp; Budget Tracker</p>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <div class="month-switcher" role="group" aria-label="Select Month">
+                    <button type="button" id="prevMonthBtn" class="icon-btn" title="Previous Month" aria-label="Previous Month">‹</button>
+                    <span id="currentMonthLabel" class="month-label">November 2026</span>
+                    <button type="button" id="nextMonthBtn" class="icon-btn" title="Next Month" aria-label="Next Month">›</button>
+                </div>
+
+                <button type="button" id="toggleSortBtn" class="pill-btn" title="Toggle Tab Priority">
+                    <span id="sortModeIcon">🔥</span>
+                    <span id="sortModeText">Most Used</span>
+                </button>
+
+                <button type="button" id="openSettingsBtn" class="pill-btn" aria-label="Settings">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="main-container">
+        <div id="storageWarning" class="storage-warning" role="status">
+            <span>⚠️ Safari Private Browsing detected: data is kept in memory for this session. Export a JSON backup in Settings to save permanently.</span>
+        </div>
+
+        <!-- Monthly Overview Strip -->
+        <section class="summary-bar" aria-label="Monthly Budget Overview">
+            <div class="summary-stats">
+                <div class="stat-block">
+                    <span class="stat-label">Total Spent This Month</span>
+                    <span id="overallSpentDisplay" class="stat-value">₹0</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label">Combined Monthly Limits</span>
+                    <span id="overallLimitDisplay" class="stat-value">₹0</span>
+                </div>
+            </div>
+
+            <div class="summary-actions">
+                <span id="priorityHint" class="priority-badge">Sorted by most frequently used</span>
+                <button type="button" id="headerAddCatBtn" class="pill-btn primary">
+                    <span>+</span>
+                    <span>New Category</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Category Tabs Grid -->
+        <section id="categoryGrid" class="category-grid" aria-label="Expense Categories">
+            <!-- Rendered by JavaScript -->
+        </section>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 1: CATEGORY DETAIL & TRANSACTIONS BY DATE                       -->
+    <!-- ===================================================================== -->
+    <div id="categoryModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+        <div class="modal-panel">
+            <div id="detailModalHeader" class="modal-header">
+                <div class="modal-title-wrap">
+                    <div id="detailModalIcon" class="cat-icon-wrap">🛒</div>
+                    <div>
+                        <h2 id="detailModalTitle" class="modal-title">Category</h2>
+                        <p id="detailModalSubtitle" class="modal-subtitle">November 2026</p>
+                    </div>
+                </div>
+                <button type="button" id="closeCategoryModalBtn" class="icon-btn" aria-label="Close">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Monthly Spent vs Limit Summary -->
+                <div id="detailBudgetBox" class="detail-budget-box">
+                    <div class="detail-budget-top">
+                        <div>
+                            <div class="stat-label">Spent in <span id="detailMonthName">Month</span></div>
+                            <div id="detailSpentAmount" class="detail-spent">₹0</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div id="detailOverBadge" class="over-limit-pill" style="display: none; margin-bottom: 4px;">OVER LIMIT</div>
+                            <div id="detailLimitAmount" class="detail-limit">Limit: ₹0</div>
+                        </div>
+                    </div>
+                    <div class="progress-track">
+                        <div id="detailProgressFill" class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Add New Expense Form -->
+                <form id="addExpenseForm" class="add-expense-card">
+                    <h3 class="section-heading">Log New Expense</h3>
+                    <div class="form-grid">
+                        <div class="form-row-2">
+                            <div>
+                                <label for="expenseAmountInput" class="field-label">Amount (<span class="currency-sym">₹</span>)</label>
+                                <input id="expenseAmountInput" type="number" step="0.01" min="0.01" inputmode="decimal" required placeholder="0.00" class="text-input">
+                            </div>
+                            <div>
+                                <label for="expenseDateInput" class="field-label">Date</label>
+                                <input id="expenseDateInput" type="date" required class="text-input">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="expenseNoteInput" class="field-label">Description / Note (Optional)</label>
+                            <input id="expenseNoteInput" type="text" maxlength="60" placeholder="e.g., Vegetables, Taxi fare, Electricity..." class="text-input">
+                        </div>
+                        <button type="submit" class="pill-btn primary" style="width: 100%; justify-content: center;">
+                            + Add Expense
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Past Transactions Grouped by Date -->
+                <div>
+                    <h3 class="section-heading">Past Transactions by Date</h3>
+                    <div id="transactionsListContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 2: ADD NEW CATEGORY TAB                                         -->
+    <!-- ===================================================================== -->
+    <div id="addCategoryModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="addCatModalTitle">
+        <div class="modal-panel">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="cat-icon-wrap" style="background: #DCFCE7;">✨</div>
+                    <div>
+                        <h2 id="addCatModalTitle" class="modal-title">Add New Category</h2>
+                        <p class="modal-subtitle">Creates a distinct pastel tab with a monthly limit</p>
+                    </div>
+                </div>
+                <button type="button" id="closeAddCatModalBtn" class="icon-btn" aria-label="Close">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <form id="newCategoryForm" class="form-grid">
+                    <div>
+                        <label for="newCatName" class="field-label">Category Name</label>
+                        <input id="newCatName" type="text" required maxlength="36" placeholder="e.g., Medical, Rent, Pets, Kids..." class="text-input">
+                    </div>
+
+                    <div>
+                        <label for="newCatLimit" class="field-label">Monthly Budget Limit (<span class="currency-sym">₹</span>)</label>
+                        <input id="newCatLimit" type="number" min="0" step="100" inputmode="decimal" required value="5000" class="text-input">
+                    </div>
+
+                    <div>
+                        <label class="field-label">Choose Icon</label>
+                        <div id="emojiPickerGrid" class="emoji-grid"></div>
+                    </div>
+
+                    <div>
+                        <label class="field-label">Choose Pastel Tab Color</label>
+                        <div id="colorPickerGrid" class="swatch-grid"></div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 6px;">
+                        <button type="button" id="cancelAddCatBtn" class="pill-btn" style="flex: 1; justify-content: center;">Cancel</button>
+                        <button type="submit" class="pill-btn primary" style="flex: 1; justify-content: center;">Create Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 3: SETTINGS (BUDGET LIMITS, CURRENCY, BACKUP)                   -->
+    <!-- ===================================================================== -->
+    <div id="settingsModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+        <div class="modal-panel">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="cat-icon-wrap" style="background: #F3F0EA;">⚙️</div>
+                    <div>
+                        <h2 id="settingsModalTitle" class="modal-title">Budget &amp; App Settings</h2>
+                        <p class="modal-subtitle">Set monthly limits per tab &amp; manage backups</p>
+                    </div>
+                </div>
+                <button type="button" id="closeSettingsModalBtn" class="icon-btn" aria-label="Close">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Currency Setting -->
+                <div style="margin-bottom: 18px;">
+                    <label for="currencySelect" class="field-label">Currency Symbol</label>
+                    <select id="currencySelect" class="select-input">
+                        <option value="₹">₹ — Indian Rupee (INR)</option>
+                        <option value="Nu.">Nu. — Bhutanese Ngultrum (BTN)</option>
+                        <option value="$">$ — US / Australian / Canadian Dollar</option>
+                        <option value="€">€ — Euro (EUR)</option>
+                        <option value="£">£ — British Pound (GBP)</option>
+                        <option value="¥">¥ — Japanese Yen / Yuan</option>
+                        <option value="AED ">AED — UAE Dirham</option>
+                    </select>
+                </div>
+
+                <!-- Monthly Limits per Category -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <h3 class="section-heading" style="margin: 0;">Monthly Limit per Tab</h3>
+                    <button type="button" id="settingsOpenAddCatBtn" class="pill-btn" style="min-height: 34px; padding: 0 10px; font-size: 0.78rem;">+ Add Category</button>
+                </div>
+                <div id="settingsCategoriesList"></div>
+
+                <div class="settings-divider"></div>
+
+                <!-- Install as Standalone iPhone App Guide -->
+                <div class="ios-guide-card">
+                    <h3 class="ios-guide-title">📲 Install as Standalone iPhone App</h3>
+                    <ol class="ios-guide-steps">
+                        <li>Host this single <strong>index.html</strong> file on <strong>Netlify Drop</strong> or <strong>GitHub Pages</strong> and open the link in iPhone <strong>Safari</strong>.</li>
+                        <li>Tap Safari's <strong>Share</strong> icon (square with upward arrow) and choose <strong>Add to Home Screen</strong>.</li>
+                        <li>Keep <strong>Open as Web App</strong> turned ON and tap <strong>Add</strong>—PastelLedger will launch full-screen with its pastel icon and work 100% offline.</li>
+                    </ol>
+                </div>
+
+                <!-- Offline Backup & Restore -->
+                <h3 class="section-heading">Offline Backup &amp; Export</h3>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 10px;">
+                    Your data stays 100% offline on this device. Export a backup file anytime to safeguard against clearing Safari browser data.
+                </p>
+                <div class="backup-grid">
+                    <button type="button" id="exportJsonBtn" class="pill-btn" style="justify-content: center;">⬇️ Backup JSON</button>
+                    <button type="button" id="importJsonBtn" class="pill-btn" style="justify-content: center;">⬆️ Restore JSON</button>
+                    <button type="button" id="exportCsvBtn" class="pill-btn" style="justify-content: center; grid-column: span 2;">📊 Export Transactions CSV</button>
+                </div>
+                <input type="file" id="importFileInput" accept=".json,application/json" style="display: none;">
+
+                <div class="settings-divider"></div>
+
+                <button type="button" id="resetDemoBtn" class="pill-btn" style="width: 100%; justify-content: center; color: var(--danger); border-color: var(--danger-border); background: var(--danger-bg);">
+                    Reset All Data to Defaults
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 4: NON-BLOCKING CONFIRMATION DIALOG                             -->
+    <!-- ===================================================================== -->
+    <div id="confirmModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <div class="confirm-box">
+            <h3 id="confirmTitle" class="modal-title" style="margin-bottom: 8px;">Are you sure?</h3>
+            <p id="confirmMessage" class="modal-subtitle" style="font-size: 0.88rem;">This action cannot be undone.</p>
+            <div class="confirm-actions">
+                <button type="button" id="confirmCancelBtn" class="pill-btn">Cancel</button>
+                <button type="button" id="confirmProceedBtn" class="pill-btn primary" style="background: var(--danger); border-color: var(--danger);">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            // =================================================================
+            // 0. DYNAMIC APPLE TOUCH ICON, PWA MANIFEST & OFFLINE CACHE
+            // =================================================================
+            function generatePastelAppIconDataUrl(size) {
+                try {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext("2d");
+                    if (!ctx) return "";
+
+                    // Soft pastel multi-stop background
+                    const grad = ctx.createLinearGradient(0, 0, size, size);
+                    grad.addColorStop(0, "#FCE7F3");
+                    grad.addColorStop(0.5, "#E0E7FF");
+                    grad.addColorStop(1, "#DCFCE7");
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, size, size);
+
+                    // Subtle inner rounded ledger card
+                    const pad = size * 0.18;
+                    const cardW = size - pad * 2;
+                    const cardH = size - pad * 2;
+                    const radius = size * 0.14;
+
+                    ctx.save();
+                    ctx.shadowColor = "rgba(31, 36, 33, 0.12)";
+                    ctx.shadowBlur = size * 0.06;
+                    ctx.shadowOffsetY = size * 0.025;
+                    ctx.fillStyle = "#FFFFFF";
+                    ctx.beginPath();
+                    ctx.moveTo(pad + radius, pad);
+                    ctx.lineTo(pad + cardW - radius, pad);
+                    ctx.quadraticCurveTo(pad + cardW, pad, pad + cardW, pad + radius);
+                    ctx.lineTo(pad + cardW, pad + cardH - radius);
+                    ctx.quadraticCurveTo(pad + cardW, pad + cardH, pad + cardW - radius, pad + cardH);
+                    ctx.lineTo(pad + radius, pad + cardH);
+                    ctx.quadraticCurveTo(pad, pad + cardH, pad, pad + cardH - radius);
+                    ctx.lineTo(pad, pad + radius);
+                    ctx.quadraticCurveTo(pad, pad, pad + radius, pad);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+
+                    // Pastel color bar tabs inside the ledger card
+                    const bars = [
+                        { color: "#FDA4AF", widthRatio: 0.62 },
+                        { color: "#FCD34D", widthRatio: 0.48 },
+                        { color: "#86EFAC", widthRatio: 0.56 }
+                    ];
+                    const barStartX = pad + cardW * 0.18;
+                    const barStartY = pad + cardH * 0.26;
+                    const barH = cardH * 0.11;
+                    const barGap = cardH * 0.18;
+
+                    bars.forEach((b, idx) => {
+                        const y = barStartY + idx * barGap;
+                        const w = cardW * b.widthRatio;
+                        const r = barH / 2;
+                        ctx.fillStyle = b.color;
+                        ctx.beginPath();
+                        ctx.moveTo(barStartX + r, y);
+                        ctx.lineTo(barStartX + w - r, y);
+                        ctx.arc(barStartX + w - r, y + r, r, -Math.PI / 2, Math.PI / 2);
+                        ctx.lineTo(barStartX + r, y + barH);
+                        ctx.arc(barStartX + r, y + r, r, Math.PI / 2, -Math.PI / 2);
+                        ctx.closePath();
+                        ctx.fill();
+                    });
+
+                    return canvas.toDataURL("image/png");
+                } catch (e) {
+                    return "";
+                }
+            }
+
+            function setupPwaMetadataAndOfflineCache() {
+                const icon180 = generatePastelAppIconDataUrl(180);
+                const icon192 = generatePastelAppIconDataUrl(192);
+                const icon512 = generatePastelAppIconDataUrl(512);
+
+                const appleLink = document.getElementById("appleTouchIconLink");
+                if (appleLink && icon180) {
+                    appleLink.href = icon180;
+                }
+
+                // Inline JSON Data-URI Web App Manifest for Standalone Mode
+                const manifestObj = {
+                    name: "PastelLedger — Daily Expense & Budget Tracker",
+                    short_name: "PastelLedger",
+                    description: "Offline daily expense and monthly budget tracker in soft pastel colors.",
+                    start_url: window.location.href,
+                    scope: "./",
+                    display: "standalone",
+                    orientation: "portrait-primary",
+                    background_color: "#FAF8F5",
+                    theme_color: "#FAF8F5",
+                    icons: [
+                        ...(icon192 ? [{ src: icon192, sizes: "192x192", type: "image/png", purpose: "any maskable" }] : []),
+                        ...(icon512 ? [{ src: icon512, sizes: "512x512", type: "image/png", purpose: "any maskable" }] : [])
+                    ]
+                };
+
+                const manifestLink = document.getElementById("webManifestLink");
+                if (manifestLink) {
+                    try {
+                        const encodedManifest = encodeURIComponent(JSON.stringify(manifestObj));
+                        manifestLink.href = "data:application/manifest+json;charset=utf-8," + encodedManifest;
+                    } catch (e) {
+                        // Ignore manifest encoding errors on restricted schemes
+                    }
+                }
+
+                // Cache current HTML in CacheStorage for instant offline launch on HTTPS hosts
+                if ("caches" in window && (window.location.protocol === "https:" || window.location.hostname === "localhost")) {
+                    try {
+                        window.caches.open("pastelledger-offline-v1").then(cache => {
+                            cache.add(window.location.href).catch(() => {});
+                        }).catch(() => {});
+                    } catch (e) {
+                        // Ignore if Cache API is restricted
+                    }
+                }
+
+                // Register inline Blob Service Worker when supported over HTTPS
+                if ("serviceWorker" in navigator && window.location.protocol === "https:") {
+                    try {
+                        const swCode = [
+                            "const CACHE_NAME = 'pastelledger-sw-v1';",
+                            "self.addEventListener('install', (e) => { self.skipWaiting(); });",
+                            "self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });",
+                            "self.addEventListener('fetch', (e) => {",
+                            "  if (e.request.method !== 'GET') return;",
+                            "  e.respondWith(",
+                            "    caches.match(e.request).then((cached) => {",
+                            "      const networkFetch = fetch(e.request).then((res) => {",
+                            "        if (res && res.status === 200) {",
+                            "          const copy = res.clone();",
+                            "          caches.open(CACHE_NAME).then((c) => c.put(e.request, copy));",
+                            "        }",
+                            "        return res;",
+                            "      }).catch(() => cached);",
+                            "      return cached || networkFetch;",
+                            "    })",
+                            "  );",
+                            "});"
+                        ].join("\n");
+                        const blob = new Blob([swCode], { type: "application/javascript" });
+                        const swUrl = URL.createObjectURL(blob);
+                        navigator.serviceWorker.register(swUrl).catch(() => {
+                            // Safari ignores blob: service worker URLs gracefully; CacheStorage + localStorage remain active
+                        });
+                    } catch (e) {
+                        // Graceful fallback
+                    }
+                }
+            }
+
+            setupPwaMetadataAndOfflineCache();
+
+            // =================================================================
+            // 1. PASTEL PALETTE & ICON LIBRARY
+            // =================================================================
+            const PASTEL_THEMES = [
+                { id: "rose",     name: "Blush Rose",    bg: "#FFE4E6", border: "#FECDD3" },
+                { id: "amber",    name: "Warm Apricot",  bg: "#FEF3C7", border: "#FDE68A" },
+                { id: "emerald",  name: "Mint Leaf",     bg: "#DCFCE7", border: "#BBF7D0" },
+                { id: "sky",      name: "Soft Sky",      bg: "#E0F2FE", border: "#BAE6FD" },
+                { id: "violet",   name: "Lavender Mist", bg: "#EDE9FE", border: "#DDD6FE" },
+                { id: "orange",   name: "Peach Cream",   bg: "#FFEDD5", border: "#FED7AA" },
+                { id: "teal",     name: "Seafoam Teal",  bg: "#CCFBF1", border: "#99F6E4" },
+                { id: "indigo",   name: "Periwinkle",    bg: "#E0E7FF", border: "#C7D2FE" },
+                { id: "lime",     name: "Pistachio",     bg: "#ECFCCB", border: "#D9F99D" },
+                { id: "fuchsia",  name: "Orchid Pink",   bg: "#FAE8FF", border: "#F5D0FE" },
+                { id: "cyan",     name: "Glacier Blue",  bg: "#CFFAFE", border: "#A5F3FC" },
+                { id: "stone",    name: "Oatmeal Sand",  bg: "#F5F5F4", border: "#E7E5E4" }
+            ];
+
+            const EMOJI_CHOICES = [
+                "👨‍👩‍👧‍👦", "🏦", "🛒", "🛍️", "🍽️", "✈️", "👕", "💡",
+                "🏥", "🏠", "🎁", "📚", "☕", "📱", "🐾", "👶", "💰", "🚗"
+            ];
+
+            const DEFAULT_CATEGORIES = [
+                { id: "cat_family",    name: "Payment to Family",              limit: 15000, icon: "👨‍👩‍👧‍👦", themeId: "rose",    usageCount: 0, order: 0 },
+                { id: "cat_loan",      name: "Loan Repayment",                 limit: 20000, icon: "🏦",       themeId: "amber",   usageCount: 0, order: 1 },
+                { id: "cat_groceries", name: "Daily Groceries",                limit: 8000,  icon: "🛒",       themeId: "emerald", usageCount: 0, order: 2 },
+                { id: "cat_online",    name: "Online Shopping",                limit: 5000,  icon: "🛍️",       themeId: "violet",  usageCount: 0, order: 3 },
+                { id: "cat_eating",    name: "Eating Out",                     limit: 4000,  icon: "🍽️",       themeId: "orange",  usageCount: 0, order: 4 },
+                { id: "cat_travel",    name: "Travel",                         limit: 6000,  icon: "✈️",       themeId: "sky",     usageCount: 0, order: 5 },
+                { id: "cat_clothes",   name: "Clothes and Household Shopping", limit: 7000,  icon: "👕",       themeId: "fuchsia", usageCount: 0, order: 6 },
+                { id: "cat_utilities", name: "Utilities & Bills",              limit: 4500,  icon: "💡",       themeId: "teal",    usageCount: 0, order: 7 }
+            ];
+
+            const STORAGE_KEY = "pastel_ledger_data_v2";
+
+            // =================================================================
+            // 2. APPLICATION STATE & SAFE STORAGE
+            // =================================================================
+            let storageAvailable = true;
+
+            function getTodayMonthKey() {
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = String(now.getMonth() + 1).padStart(2, "0");
+                return `${y}-${m}`;
+            }
+
+            function getTodayIsoDate() {
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = String(now.getMonth() + 1).padStart(2, "0");
+                const d = String(now.getDate()).padStart(2, "0");
+                return `${y}-${m}-${d}`;
+            }
+
+            function createDefaultState() {
+                return {
+                    currency: "₹",
+                    sortByPriority: true,
+                    categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
+                    transactions: []
+                };
+            }
+
+            function loadState() {
+                try {
+                    const raw = window.localStorage.getItem(STORAGE_KEY);
+                    if (!raw) {
+                        const initial = createDefaultState();
+                        saveState(initial);
+                        return initial;
+                    }
+                    const parsed = JSON.parse(raw);
+                    if (!parsed || !Array.isArray(parsed.categories)) {
+                        return createDefaultState();
+                    }
+                    return {
+                        currency: typeof parsed.currency === "string" ? parsed.currency : "₹",
+                        sortByPriority: parsed.sortByPriority !== false,
+                        categories: parsed.categories,
+                        transactions: Array.isArray(parsed.transactions) ? parsed.transactions : []
+                    };
+                } catch (err) {
+                    storageAvailable = false;
+                    return createDefaultState();
+                }
+            }
+
+            function saveState(targetState) {
+                const toSave = targetState || state;
+                try {
+                    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+                } catch (err) {
+                    storageAvailable = false;
+                    const warnEl = document.getElementById("storageWarning");
+                    if (warnEl) warnEl.classList.add("visible");
+                }
+            }
+
+            let state = loadState();
+            let activeMonthKey = getTodayMonthKey();
+            let activeCategoryId = null;
+            let selectedNewThemeId = "indigo";
+            let selectedNewEmoji = "🏥";
+            let pendingConfirmAction = null;
+            let toastTimer = null;
+
+            // =================================================================
+            // 3. FORMATTING & UTILITY HELPERS
+            // =================================================================
+            function getTheme(themeId) {
+                return PASTEL_THEMES.find(t => t.id === themeId) || PASTEL_THEMES[0];
+            }
+
+            function formatMoney(amount) {
+                const num = Number(amount) || 0;
+                const hasDecimals = Math.abs(num % 1) > 0.001;
+                const formatted = num.toLocaleString(undefined, {
+                    minimumFractionDigits: hasDecimals ? 2 : 0,
+                    maximumFractionDigits: 2
+                });
+                return `${state.currency}${formatted}`;
+            }
+
+            function formatMonthTitle(monthKey) {
+                const parts = monthKey.split("-");
+                const year = parseInt(parts[0], 10);
+                const monthIdx = parseInt(parts[1], 10) - 1;
+                const date = new Date(year, monthIdx, 1);
+                return date.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+            }
+
+            function shiftMonthKey(monthKey, delta) {
+                const parts = monthKey.split("-");
+                const year = parseInt(parts[0], 10);
+                const monthIdx = parseInt(parts[1], 10) - 1;
+                const d = new Date(year, monthIdx + delta, 1);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+            }
+
+            function formatDisplayDate(isoDate) {
+                const parts = isoDate.split("-");
+                if (parts.length !== 3) return isoDate;
+                const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                const today = getTodayIsoDate();
+                if (isoDate === today) {
+                    return "Today · " + d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+                }
+                return d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+            }
+
+            function escapeHtml(str) {
+                return String(str)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;");
+            }
+
+            function showToast(message) {
+                const toastEl = document.getElementById("toast");
+                toastEl.textContent = message;
+                toastEl.classList.add("show");
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toastEl.classList.remove("show");
+                }, 2600);
+            }
+
+            function getCategoryMonthlySpent(categoryId, monthKey) {
+                const targetMonth = monthKey || activeMonthKey;
+                return state.transactions.reduce((sum, tx) => {
+                    if (tx.categoryId === categoryId && tx.date && tx.date.startsWith(targetMonth)) {
+                        return sum + (Number(tx.amount) || 0);
+                    }
+                    return sum;
+                }, 0);
+            }
+
+            function getSortedCategories() {
+                const list = [...state.categories];
+                if (state.sortByPriority) {
+                    list.sort((a, b) => {
+                        const diff = (b.usageCount || 0) - (a.usageCount || 0);
+                        if (diff !== 0) return diff;
+                        return (a.order || 0) - (b.order || 0);
+                    });
+                } else {
+                    list.sort((a, b) => (a.order || 0) - (b.order || 0));
+                }
+                return list;
+            }
+
+            function updateCurrencySymbols() {
+                document.querySelectorAll(".currency-sym").forEach(el => {
+                    el.textContent = state.currency;
+                });
+            }
+
+            // =================================================================
+            // 4. RENDER MAIN DASHBOARD
+            // =================================================================
+            function renderDashboard() {
+                if (!storageAvailable) {
+                    document.getElementById("storageWarning").classList.add("visible");
+                }
+
+                updateCurrencySymbols();
+
+                // Month & Sort header state
+                document.getElementById("currentMonthLabel").textContent = formatMonthTitle(activeMonthKey);
+                document.getElementById("sortModeIcon").textContent = state.sortByPriority ? "🔥" : "📋";
+                document.getElementById("sortModeText").textContent = state.sortByPriority ? "Most Used" : "Default Order";
+                document.getElementById("priorityHint").textContent = state.sortByPriority
+                    ? "Sorted by most frequently used"
+                    : "Showing default tab order";
+
+                // Calculate overall totals for active month
+                let totalSpent = 0;
+                let totalLimit = 0;
+                state.categories.forEach(cat => {
+                    totalSpent += getCategoryMonthlySpent(cat.id, activeMonthKey);
+                    totalLimit += Number(cat.limit) || 0;
+                });
+
+                const overallSpentEl = document.getElementById("overallSpentDisplay");
+                overallSpentEl.textContent = formatMoney(totalSpent);
+                if (totalLimit > 0 && totalSpent > totalLimit) {
+                    overallSpentEl.classList.add("over");
+                } else {
+                    overallSpentEl.classList.remove("over");
+                }
+                document.getElementById("overallLimitDisplay").textContent = formatMoney(totalLimit);
+
+                // Render category cards
+                const grid = document.getElementById("categoryGrid");
+                const sorted = getSortedCategories();
+
+                const cardsHtml = sorted.map(cat => {
+                    const theme = getTheme(cat.themeId);
+                    const spent = getCategoryMonthlySpent(cat.id, activeMonthKey);
+                    const limit = Number(cat.limit) || 0;
+                    const isOver = limit > 0 && spent > limit;
+                    const pct = limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : (spent > 0 ? 100 : 0);
+                    const usage = cat.usageCount || 0;
+
+                    return `
+                        <button type="button"
+                            class="cat-card"
+                            data-cat-id="${escapeHtml(cat.id)}"
+                            style="background-color: ${theme.bg}; border-color: ${isOver ? "#FCA5A5" : theme.border};">
+                            <div class="cat-card-top">
+                                <div class="cat-icon-wrap" aria-hidden="true">${escapeHtml(cat.icon || "🏷️")}</div>
+                                <div class="cat-badges">
+                                    ${isOver ? `<span class="over-limit-pill">OVER LIMIT</span>` : ""}
+                                    ${usage > 0 ? `<span class="usage-pill">${usage} ${usage === 1 ? "use" : "uses"}</span>` : ""}
+                                </div>
+                            </div>
+
+                            <h2 class="cat-name">${escapeHtml(cat.name)}</h2>
+
+                            <div class="cat-amounts">
+                                <div class="cat-spent ${isOver ? "over-limit" : ""}">${formatMoney(spent)}</div>
+                                <div class="cat-limit-row">
+                                    <span>Limit: ${formatMoney(limit)}</span>
+                                    <span>${limit > 0 ? pct + "%" : "No limit"}</span>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-fill ${isOver ? "over-limit" : ""}" style="width: ${pct}%;"></div>
+                                </div>
+                            </div>
+                        </button>
+                    `;
+                }).join("");
+
+                const addNewTileHtml = `
+                    <button type="button" id="gridAddCategoryCard" class="add-cat-card">
+                        <div class="add-cat-plus" aria-hidden="true">+</div>
+                        <div class="add-cat-title">Add New Category</div>
+                        <div class="add-cat-sub">Create a custom pastel tab with its own monthly limit</div>
+                    </button>
+                `;
+
+                grid.innerHTML = cardsHtml + addNewTileHtml;
+
+                // Attach card events
+                grid.querySelectorAll(".cat-card[data-cat-id]").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const catId = btn.getAttribute("data-cat-id");
+                        openCategoryModal(catId);
+                    });
+                });
+
+                const gridAddBtn = document.getElementById("gridAddCategoryCard");
+                if (gridAddBtn) {
+                    gridAddBtn.addEventListener("click", openAddCategoryModal);
+                }
+            }
+
+            // =================================================================
+            // 5. CATEGORY DETAIL MODAL (TRANSACTIONS BY DATE & LOGGING)
+            // =================================================================
+            function openCategoryModal(categoryId) {
+                const cat = state.categories.find(c => c.id === categoryId);
+                if (!cat) return;
+
+                activeCategoryId = categoryId;
+
+                // Increment usage priority when tab is opened
+                cat.usageCount = (cat.usageCount || 0) + 1;
+                saveState();
+                renderDashboard();
+
+                // Default date inside selected month
+                const todayIso = getTodayIsoDate();
+                const defaultDate = todayIso.startsWith(activeMonthKey) ? todayIso : `${activeMonthKey}-01`;
+                document.getElementById("expenseDateInput").value = defaultDate;
+                document.getElementById("expenseAmountInput").value = "";
+                document.getElementById("expenseNoteInput").value = "";
+
+                renderCategoryDetailContent();
+
+                const modal = document.getElementById("categoryModal");
+                modal.classList.add("open");
+            }
+
+            function closeCategoryModal() {
+                activeCategoryId = null;
+                document.getElementById("categoryModal").classList.remove("open");
+            }
+
+            function renderCategoryDetailContent() {
+                const cat = state.categories.find(c => c.id === activeCategoryId);
+                if (!cat) return;
+
+                const theme = getTheme(cat.themeId);
+                const monthTitle = formatMonthTitle(activeMonthKey);
+                const spent = getCategoryMonthlySpent(cat.id, activeMonthKey);
+                const limit = Number(cat.limit) || 0;
+                const isOver = limit > 0 && spent > limit;
+                const pct = limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : (spent > 0 ? 100 : 0);
+
+                document.getElementById("detailModalHeader").style.backgroundColor = theme.bg;
+                document.getElementById("detailModalIcon").textContent = cat.icon || "🏷️";
+                document.getElementById("detailModalTitle").textContent = cat.name;
+                document.getElementById("detailModalSubtitle").textContent = monthTitle;
+                document.getElementById("detailMonthName").textContent = monthTitle;
+
+                const budgetBox = document.getElementById("detailBudgetBox");
+                budgetBox.style.backgroundColor = isOver ? "#FEF2F2" : "#FAF9F6";
+                budgetBox.style.borderColor = isOver ? "#FECACA" : "var(--border-subtle)";
+
+                const spentEl = document.getElementById("detailSpentAmount");
+                spentEl.textContent = formatMoney(spent);
+                spentEl.className = "detail-spent" + (isOver ? " over-limit" : "");
+
+                document.getElementById("detailLimitAmount").textContent = `Monthly Limit: ${formatMoney(limit)}`;
+                document.getElementById("detailOverBadge").style.display = isOver ? "inline-block" : "none";
+
+                const fillEl = document.getElementById("detailProgressFill");
+                fillEl.style.width = `${pct}%`;
+                fillEl.className = "progress-fill" + (isOver ? " over-limit" : "");
+
+                // Filter & sort transactions for this category & month (newest date first)
+                const monthTxs = state.transactions
+                    .filter(tx => tx.categoryId === cat.id && tx.date && tx.date.startsWith(activeMonthKey))
+                    .sort((a, b) => {
+                        if (b.date !== a.date) return b.date.localeCompare(a.date);
+                        return (b.createdAt || 0) - (a.createdAt || 0);
+                    });
+
+                const container = document.getElementById("transactionsListContainer");
+                if (monthTxs.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            No expenses recorded for <strong>${escapeHtml(cat.name)}</strong> in ${escapeHtml(monthTitle)}.<br>
+                            Use the form above to add your first entry.
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Group by date
+                const groups = {};
+                monthTxs.forEach(tx => {
+                    if (!groups[tx.date]) groups[tx.date] = [];
+                    groups[tx.date].push(tx);
+                });
+
+                const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+
+                container.innerHTML = sortedDates.map(dateKey => {
+                    const items = groups[dateKey];
+                    const dayTotal = items.reduce((s, item) => s + (Number(item.amount) || 0), 0);
+
+                    const rowsHtml = items.map(item => `
+                        <div class="tx-item">
+                            <div class="tx-note">${escapeHtml(item.note || "Expense")}</div>
+                            <div class="tx-right">
+                                <span class="tx-amount">${formatMoney(item.amount)}</span>
+                                <button type="button" class="del-tx-btn" data-del-tx="${escapeHtml(item.id)}" title="Delete entry" aria-label="Delete entry">🗑️</button>
+                            </div>
+                        </div>
+                    `).join("");
+
+                    return `
+                        <div class="date-group">
+                            <div class="date-group-header">
+                                <span>${escapeHtml(formatDisplayDate(dateKey))}</span>
+                                <span>Day Total: ${formatMoney(dayTotal)}</span>
+                            </div>
+                            ${rowsHtml}
+                        </div>
+                    `;
+                }).join("");
+
+                container.querySelectorAll("[data-del-tx]").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const txId = btn.getAttribute("data-del-tx");
+                        state.transactions = state.transactions.filter(t => t.id !== txId);
+                        saveState();
+                        renderCategoryDetailContent();
+                        renderDashboard();
+                        showToast("Transaction deleted");
+                    });
+                });
+            }
+
+            // =================================================================
+            // 6. ADD NEW CATEGORY MODAL
+            // =================================================================
+            function getNextUnusedThemeId() {
+                const used = new Set(state.categories.map(c => c.themeId));
+                const unused = PASTEL_THEMES.find(t => !used.has(t.id));
+                return unused ? unused.id : PASTEL_THEMES[state.categories.length % PASTEL_THEMES.length].id;
+            }
+
+            function renderAddCategoryPickers() {
+                const emojiGrid = document.getElementById("emojiPickerGrid");
+                emojiGrid.innerHTML = EMOJI_CHOICES.map(emoji => `
+                    <button type="button"
+                        class="emoji-btn ${emoji === selectedNewEmoji ? "selected" : ""}"
+                        data-emoji="${emoji}">${emoji}</button>
+                `).join("");
+
+                emojiGrid.querySelectorAll(".emoji-btn").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        selectedNewEmoji = btn.getAttribute("data-emoji");
+                        renderAddCategoryPickers();
+                    });
+                });
+
+                const colorGrid = document.getElementById("colorPickerGrid");
+                colorGrid.innerHTML = PASTEL_THEMES.map(theme => `
+                    <button type="button"
+                        class="swatch-btn ${theme.id === selectedNewThemeId ? "selected" : ""}"
+                        data-theme="${theme.id}"
+                        title="${theme.name}"
+                        style="background-color: ${theme.bg}; border-color: ${theme.id === selectedNewThemeId ? "#1F2421" : theme.border};">
+                    </button>
+                `).join("");
+
+                colorGrid.querySelectorAll(".swatch-btn").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        selectedNewThemeId = btn.getAttribute("data-theme");
+                        renderAddCategoryPickers();
+                    });
+                });
+            }
+
+            function openAddCategoryModal() {
+                selectedNewThemeId = getNextUnusedThemeId();
+                selectedNewEmoji = EMOJI_CHOICES[(state.categories.length) % EMOJI_CHOICES.length];
+                document.getElementById("newCatName").value = "";
+                document.getElementById("newCatLimit").value = "5000";
+                renderAddCategoryPickers();
+                document.getElementById("addCategoryModal").classList.add("open");
+                setTimeout(() => document.getElementById("newCatName").focus(), 100);
+            }
+
+            function closeAddCategoryModal() {
+                document.getElementById("addCategoryModal").classList.remove("open");
+            }
+
+            // =================================================================
+            // 7. SETTINGS MODAL & BACKUP/RESTORE
+            // =================================================================
+            function openSettingsModal() {
+                document.getElementById("currencySelect").value = state.currency;
+                renderSettingsCategories();
+                document.getElementById("settingsModal").classList.add("open");
+            }
+
+            function closeSettingsModal() {
+                document.getElementById("settingsModal").classList.remove("open");
+            }
+
+            function renderSettingsCategories() {
+                const listEl = document.getElementById("settingsCategoriesList");
+                const ordered = [...state.categories].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+                listEl.innerHTML = ordered.map(cat => {
+                    const theme = getTheme(cat.themeId);
+                    const isBuiltIn = DEFAULT_CATEGORIES.some(d => d.id === cat.id);
+                    return `
+                        <div class="settings-cat-row" style="background-color: ${theme.bg}; border-color: ${theme.border};">
+                            <div class="settings-cat-info">
+                                <span style="font-size: 1.2rem;">${escapeHtml(cat.icon || "🏷️")}</span>
+                                <span class="settings-cat-name">${escapeHtml(cat.name)}</span>
+                            </div>
+                            <div class="limit-input-wrap">
+                                <span style="font-size: 0.85rem; font-weight: 700;">${escapeHtml(state.currency)}</span>
+                                <input type="number" min="0" step="100" inputmode="decimal"
+                                    class="limit-input"
+                                    data-limit-cat="${escapeHtml(cat.id)}"
+                                    value="${Number(cat.limit) || 0}"
+                                    aria-label="Monthly limit for ${escapeHtml(cat.name)}">
+                                ${!isBuiltIn ? `<button type="button" class="del-tx-btn" data-del-cat="${escapeHtml(cat.id)}" title="Delete category">🗑️</button>` : ""}
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+                listEl.querySelectorAll("[data-limit-cat]").forEach(input => {
+                    input.addEventListener("change", () => {
+                        const catId = input.getAttribute("data-limit-cat");
+                        const cat = state.categories.find(c => c.id === catId);
+                        if (cat) {
+                            cat.limit = Math.max(0, parseFloat(input.value) || 0);
+                            saveState();
+                            renderDashboard();
+                            showToast(`Updated ${cat.name} limit`);
+                        }
+                    });
+                });
+
+                listEl.querySelectorAll("[data-del-cat]").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const catId = btn.getAttribute("data-del-cat");
+                        const cat = state.categories.find(c => c.id === catId);
+                        if (!cat) return;
+                        openConfirmDialog(
+                            `Delete "${cat.name}"?`,
+                            "This will remove the category tab and its transactions.",
+                            () => {
+                                state.categories = state.categories.filter(c => c.id !== catId);
+                                state.transactions = state.transactions.filter(t => t.categoryId !== catId);
+                                saveState();
+                                renderSettingsCategories();
+                                renderDashboard();
+                                showToast(`Deleted "${cat.name}"`);
+                            }
+                        );
+                    });
+                });
+            }
+
+            function triggerDownload(filename, content, mimeType) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+
+            // =================================================================
+            // 8. CUSTOM NON-BLOCKING CONFIRM DIALOG
+            // =================================================================
+            function openConfirmDialog(title, message, onProceed) {
+                document.getElementById("confirmTitle").textContent = title;
+                document.getElementById("confirmMessage").textContent = message;
+                pendingConfirmAction = onProceed;
+                document.getElementById("confirmModal").classList.add("open");
+            }
+
+            function closeConfirmDialog() {
+                pendingConfirmAction = null;
+                document.getElementById("confirmModal").classList.remove("open");
+            }
+
+            // =================================================================
+            // 9. WIRE ALL EVENT LISTENERS ON DOM READY
+            // =================================================================
+            document.addEventListener("DOMContentLoaded", function () {
+                // Header Month Navigation
+                document.getElementById("prevMonthBtn").addEventListener("click", () => {
+                    activeMonthKey = shiftMonthKey(activeMonthKey, -1);
+                    renderDashboard();
+                });
+
+                document.getElementById("nextMonthBtn").addEventListener("click", () => {
+                    activeMonthKey = shiftMonthKey(activeMonthKey, 1);
+                    renderDashboard();
+                });
+
+                // Sort Priority Toggle
+                document.getElementById("toggleSortBtn").addEventListener("click", () => {
+                    state.sortByPriority = !state.sortByPriority;
+                    saveState();
+                    renderDashboard();
+                    showToast(state.sortByPriority ? "Sorted by most frequently used" : "Sorted by default order");
+                });
+
+                // Open / Close Modals
+                document.getElementById("headerAddCatBtn").addEventListener("click", openAddCategoryModal);
+                document.getElementById("closeAddCatModalBtn").addEventListener("click", closeAddCategoryModal);
+                document.getElementById("cancelAddCatBtn").addEventListener("click", closeAddCategoryModal);
+
+                document.getElementById("closeCategoryModalBtn").addEventListener("click", closeCategoryModal);
+
+                document.getElementById("openSettingsBtn").addEventListener("click", openSettingsModal);
+                document.getElementById("closeSettingsModalBtn").addEventListener("click", closeSettingsModal);
+                document.getElementById("settingsOpenAddCatBtn").addEventListener("click", () => {
+                    closeSettingsModal();
+                    openAddCategoryModal();
+                });
+
+                // Backdrop click to close modals
+                ["categoryModal", "addCategoryModal", "settingsModal", "confirmModal"].forEach(modalId => {
+                    document.getElementById(modalId).addEventListener("click", (e) => {
+                        if (e.target.id === modalId) {
+                            if (modalId === "categoryModal") closeCategoryModal();
+                            if (modalId === "addCategoryModal") closeAddCategoryModal();
+                            if (modalId === "settingsModal") closeSettingsModal();
+                            if (modalId === "confirmModal") closeConfirmDialog();
+                        }
+                    });
+                });
+
+                // Add Expense Form Submit
+                document.getElementById("addExpenseForm").addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    if (!activeCategoryId) return;
+
+                    const amountVal = parseFloat(document.getElementById("expenseAmountInput").value);
+                    const dateVal = document.getElementById("expenseDateInput").value;
+                    const noteVal = document.getElementById("expenseNoteInput").value.trim();
+
+                    if (!amountVal || amountVal <= 0 || !dateVal) {
+                        showToast("Please enter a valid amount and date");
+                        return;
+                    }
+
+                    const newTx = {
+                        id: "tx_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+                        categoryId: activeCategoryId,
+                        amount: Math.round(amountVal * 100) / 100,
+                        date: dateVal,
+                        note: noteVal || "Expense",
+                        createdAt: Date.now()
+                    };
+
+                    state.transactions.push(newTx);
+
+                    // Increase category usage frequency on transaction entry
+                    const cat = state.categories.find(c => c.id === activeCategoryId);
+                    if (cat) {
+                        cat.usageCount = (cat.usageCount || 0) + 1;
+                    }
+
+                    // Switch activeMonthKey if user logged an expense in a different month
+                    const txMonth = dateVal.slice(0, 7);
+                    if (txMonth && txMonth.length === 7) {
+                        activeMonthKey = txMonth;
+                    }
+
+                    saveState();
+                    document.getElementById("expenseAmountInput").value = "";
+                    document.getElementById("expenseNoteInput").value = "";
+
+                    renderCategoryDetailContent();
+                    renderDashboard();
+                    showToast(`Added ${formatMoney(newTx.amount)}`);
+                });
+
+                // Add New Category Form Submit
+                document.getElementById("newCategoryForm").addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const nameVal = document.getElementById("newCatName").value.trim();
+                    const limitVal = parseFloat(document.getElementById("newCatLimit").value);
+
+                    if (!nameVal) {
+                        showToast("Please enter a category name");
+                        return;
+                    }
+
+                    const newCategory = {
+                        id: "cat_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+                        name: nameVal,
+                        limit: isNaN(limitVal) ? 0 : Math.max(0, limitVal),
+                        icon: selectedNewEmoji,
+                        themeId: selectedNewThemeId,
+                        usageCount: 0,
+                        order: state.categories.length
+                    };
+
+                    state.categories.push(newCategory);
+                    saveState();
+                    closeAddCategoryModal();
+                    renderDashboard();
+                    showToast(`Created "${newCategory.name}" tab!`);
+                });
+
+                // Currency Change
+                document.getElementById("currencySelect").addEventListener("change", (e) => {
+                    state.currency = e.target.value;
+                    saveState();
+                    renderSettingsCategories();
+                    renderDashboard();
+                    showToast(`Currency set to ${state.currency.trim()}`);
+                });
+
+                // Export JSON Backup
+                document.getElementById("exportJsonBtn").addEventListener("click", () => {
+                    const payload = JSON.stringify(state, null, 2);
+                    triggerDownload(`PastelLedger-Backup-${getTodayIsoDate()}.json`, payload, "application/json");
+                    showToast("JSON backup downloaded");
+                });
+
+                // Import JSON Backup
+                document.getElementById("importJsonBtn").addEventListener("click", () => {
+                    document.getElementById("importFileInput").click();
+                });
+
+                document.getElementById("importFileInput").addEventListener("change", (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function (evt) {
+                        try {
+                            const imported = JSON.parse(evt.target.result);
+                            if (!imported || !Array.isArray(imported.categories)) {
+                                showToast("Invalid backup file format");
+                                return;
+                            }
+                            state = {
+                                currency: imported.currency || "₹",
+                                sortByPriority: imported.sortByPriority !== false,
+                                categories: imported.categories,
+                                transactions: Array.isArray(imported.transactions) ? imported.transactions : []
+                            };
+                            saveState();
+                            renderSettingsCategories();
+                            renderDashboard();
+                            showToast("Backup restored successfully!");
+                        } catch (err) {
+                            showToast("Could not read JSON file");
+                        } finally {
+                            e.target.value = "";
+                        }
+                    };
+                    reader.readAsText(file);
+                });
+
+                // Export CSV
+                document.getElementById("exportCsvBtn").addEventListener("click", () => {
+                    const catMap = {};
+                    state.categories.forEach(c => { catMap[c.id] = c.name; });
+
+                    const rows = [["Date", "Category", "Description", "Amount"]];
+                    const sortedTx = [...state.transactions].sort((a, b) => b.date.localeCompare(a.date));
+                    sortedTx.forEach(tx => {
+                        const catName = (catMap[tx.categoryId] || "Uncategorized").replace(/"/g, '""');
+                        const note = (tx.note || "").replace(/"/g, '""');
+                        rows.push([tx.date, `"${catName}"`, `"${note}"`, tx.amount]);
+                    });
+
+                    const csvString = rows.map(r => r.join(",")).join("\n");
+                    triggerDownload(`PastelLedger-Expenses-${getTodayIsoDate()}.csv`, csvString, "text/csv;charset=utf-8;");
+                    showToast("CSV exported");
+                });
+
+                // Reset All Data
+                document.getElementById("resetDemoBtn").addEventListener("click", () => {
+                    openConfirmDialog(
+                        "Reset all data?",
+                        "All logged transactions and custom categories will be cleared.",
+                        () => {
+                            state = createDefaultState();
+                            saveState();
+                            renderSettingsCategories();
+                            renderDashboard();
+                            closeSettingsModal();
+                            showToast("Reset to default categories");
+                        }
+                    );
+                });
+
+                // Confirm Dialog Buttons
+                document.getElementById("confirmCancelBtn").addEventListener("click", closeConfirmDialog);
+                document.getElementById("confirmProceedBtn").addEventListener("click", () => {
+                    if (typeof pendingConfirmAction === "function") {
+                        pendingConfirmAction();
+                    }
+                    closeConfirmDialog();
+                });
+
+                // Escape key closes open modals
+                document.addEventListener("keydown", (e) => {
+                    if (e.key === "Escape") {
+                        closeCategoryModal();
+                        closeAddCategoryModal();
+                        closeSettingsModal();
+                        closeConfirmDialog();
+                    }
+                });
+
+                // Initial Render
+                renderDashboard();
+            });
+        })();
+    </script>
+</body>
+</html>
